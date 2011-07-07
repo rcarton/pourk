@@ -6,7 +6,27 @@ More:
 
 """
 
-import Image, tools
+import Image
+
+DEFAULT_RESIZE_MODE = Image.ANTIALIAS
+
+def resize(image, l, dimension='w', resize_mode=DEFAULT_RESIZE_MODE):
+	"""Resize the image.
+	Parameters:
+	* image
+	* length
+	* dimension to resize ('w' or 'h')
+	"""
+	
+	if dimension == 'w':
+		new_width = l
+		new_height = int(round(image.size[1]*l/float(image.size[0])))
+	else:
+		new_height = l
+		new_width = int(round(image.size[0]*l/float(image.size[1])))
+	
+	return image.resize((new_width, new_height), resample=resize_mode)
+
 
 class CouturierException(Exception):
 	pass
@@ -44,6 +64,7 @@ class LeColumnCouturier(Couturier):
 		* ``order``: fill rows or columns first
 		* ``resize_mode``: resize mode ('NEAREST', 'BILINEAR', 'BICUBIC', 'ANTIALIAS')
 	"""
+	
 	ORDER_FILL_COLUMNS = 0
 	ORDER_FILL_ROWS = 1
 	
@@ -71,7 +92,7 @@ class LeColumnCouturier(Couturier):
 			
 			# If image too wide: resize
 			if image.size[0] > col_w: 
-				image = tools.resize(image, col_w, resize_mode=self.options.get('resize_mode', tools.DEFAULT_RESIZE_MODE))
+				image = resize(image, col_w, resize_mode=self.options.get('resize_mode', DEFAULT_RESIZE_MODE))
 			
 			canvas.paste(image, (column_index*col_w, column_last_height[column_index]))
 			column_last_height[column_index] = column_last_height[column_index] + image.size[1]
